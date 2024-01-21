@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
             primarySwatch: Colors.blue,
-            textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 48))),
+            textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 24))),
         home: Scaffold(
           appBar: AppBar(title: const Text("Flutter Streams")),
           body: const AppBody(),

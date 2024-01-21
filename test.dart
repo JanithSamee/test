@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:web_socket_channel/web_socket_channel.dart';
+
 void main() {
   StreamCreator().stream.listen((event) {
     print(event);
@@ -7,17 +9,14 @@ void main() {
 }
 
 class StreamCreator {
-  final _streamController = StreamController<int>();
-  int _count = 0;
+  final _streamController = StreamController<String>.broadcast();
   StreamCreator() {
-    Timer.periodic(const Duration(seconds: 1), (e) {
-      _count = e.tick;
-      if (_count % 5 == 0) {
-        _streamController.sink.addError("Error");
-      } else {
-        _streamController.sink.add(_count);
-      }
-    });
+    final channel = WebSocketChannel.connect(
+      Uri.parse('wss://socketsbay.com/wss/v2/1/demo/'),
+    );
+
+    _streamController.addStream(channel.stream.map((event) =>
+        event is! String ? "message : unknown" : "message : $event"));
   }
-  Stream<int> get stream => _streamController.stream;
+  Stream<String> get stream => _streamController.stream;
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
-
+import 'dart:io';
+import 'package:http/http.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class AppBody extends StatefulWidget {
   const AppBody({super.key});
@@ -19,9 +21,11 @@ class _AppBodyState extends State<AppBody> {
             if (snap.hasError) {
               return const Text("Error");
             } else if (snap.connectionState == ConnectionState.waiting) {
-              return const Text("Waiting");
-            } else {
+              return const Text("Waiting...");
+            } else if (snap.connectionState == ConnectionState.active) {
               return Text("${snap.data}");
+            } else {
+              return const Text("Finished");
             }
           }),
     );
@@ -29,17 +33,14 @@ class _AppBodyState extends State<AppBody> {
 }
 
 class StreamCreator {
-  final _streamController = StreamController<int>.broadcast();
-  int _count = 0;
+  final _streamController = StreamController<String>.broadcast();
   StreamCreator() {
-    Timer.periodic(const Duration(seconds: 5), (e) {
-      _count = e.tick;
-      if (_count % 5 == 0) {
-        _streamController.sink.addError("Error");
-      } else {
-        _streamController.sink.add(_count);
-      }
-    });
+    final channel = WebSocketChannel.connect(
+      Uri.parse('wss://socketsbay.com/wss/v2/1/demo/'),
+    );
+
+    _streamController.addStream(channel.stream.map((event) =>
+        event is! String ? "message : unknown" : "message : $event"));
   }
-  Stream<int> get stream => _streamController.stream;
+  Stream<String> get stream => _streamController.stream;
 }
